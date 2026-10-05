@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AIInterviewSimulator.API/AIInterviewSimulator.API.csproj" />
+    <Project Path="src/AIInterviewSimulator.Application/AIInterviewSimulator.Application.csproj" />
+    <Project Path="src/AIInterviewSimulator.Domain/AIInterviewSimulator.Domain.csproj" />
+    <Project Path="src/AIInterviewSimulator.Infrastructure/AIInterviewSimulator.Infrastructure.csproj" />
+  </Folder>
+</Solution>
