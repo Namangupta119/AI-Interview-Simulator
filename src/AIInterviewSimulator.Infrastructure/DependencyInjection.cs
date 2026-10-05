@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using AIInterviewSimulator.Infrastructure.InterviewSessions;
+using AIInterviewSimulator.Infrastructure.InterviewQuestions;
 
 namespace AIInterviewSimulator.Infrastructure;
 
@@ -43,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IInterviewSessionService, InterviewSessionService>();
+        services.AddScoped<IInterviewQuestionService, InterviewQuestionService>();
 
         // Configure JWT settings
         services.Configure<JwtSettings>(

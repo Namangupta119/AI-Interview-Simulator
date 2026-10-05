@@ -14,15 +14,18 @@ public sealed class InterviewSessionsController : ControllerBase
     private readonly IInterviewSessionService _sessionService;
     private readonly IValidator<CreateInterviewSessionRequest> _validator;
     private readonly ILogger<InterviewSessionsController> _logger;
+    private readonly IInterviewQuestionService _questionService;
 
     public InterviewSessionsController(
         IInterviewSessionService sessionService,
         IValidator<CreateInterviewSessionRequest> validator,
-        ILogger<InterviewSessionsController> logger)
+        ILogger<InterviewSessionsController> logger,
+        IInterviewQuestionService questionService)
     {
         _sessionService = sessionService;
         _validator = validator;
         _logger = logger;
+        _questionService = questionService;
     }
 
     /// <summary>
@@ -71,6 +74,50 @@ public sealed class InterviewSessionsController : ControllerBase
         catch (UnauthorizedAccessException)
         {
             return Unauthorized();
+        }
+    }
+
+    [HttpPost("{sessionId:guid}/questions/next")]
+    [ProducesResponseType(
+        typeof(GenerateInterviewQuestionResponse),
+        StatusCodes.Status201Created)]
+    [ProducesResponseType(
+        typeof(ValidationProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GenerateNextQuestion(
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _questionService.GenerateNextQuestionAsync(
+                sessionId,
+                cancellationToken);
+
+            return StatusCode(StatusCodes.Status201Created, response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Unable to generate next question for session {SessionId}.",
+                sessionId);
+
+            return Conflict(new
+            {
+                message = ex.Message
+            });
         }
     }
 }

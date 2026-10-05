@@ -20,3 +20,12 @@ public record CreateInterviewSessionResponse(
     SessionStatus Status,
     DateTime StartedAtUtc
 );
+
+public record GenerateInterviewQuestionResponse(
+    Guid QuestionId,
+    int QuestionNumber,
+    int TotalQuestions,
+    string QuestionText,
+    string ExpectedAnswerPoints,
+    InterviewTopic Topic
+);
