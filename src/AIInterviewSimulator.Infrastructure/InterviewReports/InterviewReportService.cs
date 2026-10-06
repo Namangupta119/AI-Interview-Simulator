@@ -3,6 +3,7 @@ using AIInterviewSimulator.Application.Common.Models;
 using AIInterviewSimulator.Domain.Entities;
 using AIInterviewSimulator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace AIInterviewSimulator.Infrastructure.InterviewReports;
 
@@ -118,6 +119,51 @@ public sealed class InterviewReportService : IInterviewReportService
                 "The AI generated topic scores exceed the allowed length.");
         }
 
+        try
+        {
+            using var topicScoresDocument =
+                JsonDocument.Parse(summary.TopicScoresJson);
+
+            if (topicScoresDocument.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidOperationException(
+                    "The AI generated topic scores must be a JSON object.");
+            }
+        }
+        catch (JsonException)
+        {
+            throw new InvalidOperationException(
+                "The AI generated invalid topic scores JSON.");
+        }
+
+        if (summary.StrengthSummary.Length > 4000)
+        {
+            throw new InvalidOperationException(
+                "The AI generated strength summary exceeds the allowed length.");
+        }
+
+        if (summary.WeaknessSummary.Length > 3000)
+        {
+            throw new InvalidOperationException(
+                "The AI generated weakness summary exceeds the allowed length.");
+        }
+
+        var recommendedTopicsText = string.Join(
+            Environment.NewLine,
+            summary.RecommendedTopics);
+
+        if (recommendedTopicsText.Length > 4000)
+        {
+            throw new InvalidOperationException(
+                "The AI generated recommended topics exceed the allowed length.");
+        }
+
+        if (summary.ImprovementPlan.Length > 5000)
+        {
+            throw new InvalidOperationException(
+                "The AI generated improvement plan exceeds the allowed length.");
+        }
+
         var report = new InterviewReport
         {
             Id = Guid.NewGuid(),
@@ -125,9 +171,7 @@ public sealed class InterviewReportService : IInterviewReportService
             OverallScore = (decimal)summary.OverallScore,
             StrengthSummary = summary.StrengthSummary.Trim(),
             WeaknessSummary = summary.WeaknessSummary.Trim(),
-            RecommendedTopics = string.Join(
-                Environment.NewLine,
-                summary.RecommendedTopics),
+            RecommendedTopics = recommendedTopicsText,
             ImprovementPlan = summary.ImprovementPlan.Trim(),
             TopicScoresJson = summary.TopicScoresJson.Trim(),
             CreatedAtUtc = DateTime.UtcNow

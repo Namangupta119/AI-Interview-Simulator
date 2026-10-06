@@ -46,8 +46,31 @@ public class GeminiInterviewService : IAIInterviewService
     {
         var client = CreateClient();
 
-        var systemPrompt = "You are an expert technical interviewer conducting a structured technical interview. " +
-            "Generate one relevant, engaging, and role-appropriate interview question based on the candidate's level, difficulty, and topics. " +
+        var systemPrompt =
+            "You are an experienced technical interviewer conducting a fair, practical, and adaptive software engineering interview. " +
+            "Generate exactly one interview question based on the candidate's target role, experience level, selected topic, and difficulty. " +
+
+            "DIFFICULTY GUIDELINES: " +
+            "Easy questions should focus on fundamental concepts, basic definitions, and simple practical examples. " +
+            "Medium questions should focus on practical understanding, common development scenarios, and moderate problem solving. " +
+            "Hard questions should focus on deeper technical understanding, debugging, optimization, architecture, scalability, or trade-offs. " +
+            "Do not make Easy or Medium questions unnecessarily difficult, obscure, or dependent on advanced internal implementation details. " +
+
+            "EXPERIENCE GUIDELINES: " +
+            "For Junior candidates, prioritize fundamentals and practical understanding. " +
+            "Do not require advanced internals or highly specialized knowledge unless the selected difficulty is Hard and the topic reasonably requires it. " +
+            "For Mid-level candidates, include practical implementation, debugging, and design-oriented questions. " +
+            "For Senior and Lead candidates, advanced architecture, performance, scalability, and trade-off questions are appropriate. " +
+
+            "QUESTION QUALITY GUIDELINES: " +
+            "Prefer clear and realistic interview questions over obscure technical trivia. " +
+            "Test the core concept relevant to the selected topic. " +
+            "Do not require secondary or advanced details unless the question explicitly asks for them. " +
+            "For example, if testing value types and reference types, focus primarily on their behavior and differences rather than requiring detailed memory-layout knowledge unless appropriate. " +
+            "Vary question styles across conceptual, practical, debugging, and scenario-based questions when appropriate. " +
+            "Avoid repeating the same question, concept, or question style from previous questions. " +
+
+            "The question must be relevant to the target role and the selected topic. " +
             "Ensure the output strictly conforms to the requested JSON schema.";
 
         var topicsList = string.Join(", ", request.Topics);
@@ -64,7 +87,9 @@ public class GeminiInterviewService : IAIInterviewService
             {
                 userPrompt += $"- Question: {pq.QuestionText}\n";
             }
-            userPrompt += "Ensure the new question does NOT repeat previous topics or questions.\n";
+            userPrompt +=
+                "Use the previous questions to maintain topic balance and question diversity. " +
+                "Avoid repeating the same question, concept, or question style unless necessary.\n";
         }
 
         const string schemaJson = """
@@ -93,7 +118,8 @@ public class GeminiInterviewService : IAIInterviewService
         var response = await client.Models.GenerateContentAsync(
             model: _settings.Model,
             contents: userPrompt,
-            config: config
+            config: config,
+            cancellationToken: cancellationToken
         );
 
         var responseText = response.Text ?? response.Candidates?[0]?.Content?.Parts?[0]?.Text
@@ -118,14 +144,51 @@ public class GeminiInterviewService : IAIInterviewService
     {
         var client = CreateClient();
 
-        var systemPrompt = "You are an objective technical interviewer evaluating a candidate's answer. " +
-        "Evaluate the answer against the question and expected answer points provided. " +
-        "Score the answer from 0.0 to 10.0, where 10.0 represents an excellent and technically complete answer. " +
-        "Evaluate technical correctness and completeness separately. " +
-        "Identify specific strengths, weaknesses, missing concepts, and actionable improvement suggestions. " +
-        "Also provide an ideal answer that represents what a strong candidate should explain. " +
-        "Do not give credit for claims that are technically incorrect. " +
-        "Ensure the output strictly conforms to the requested JSON schema.";
+        var systemPrompt =
+            "You are an objective and fair technical interviewer evaluating a candidate's answer. " +
+            "Evaluate the answer against the question, expected answer points, target role, and candidate experience level. " +
+
+            "SCORING SCALE: " +
+            "9.0-10.0: Excellent answer with strong technical correctness, good completeness, and clear practical understanding. " +
+            "7.0-8.9: Good answer with correct core understanding and only minor omissions or imprecisions. " +
+            "5.0-6.9: Basic or partially correct understanding with noticeable gaps, but the candidate demonstrates some meaningful knowledge. " +
+            "3.0-4.9: Limited understanding with significant gaps or some important technical errors. " +
+            "0.0-2.9: Fundamentally incorrect, irrelevant, or demonstrates very little understanding of the question. " +
+
+            "CORE CORRECTNESS: " +
+            "Prioritize whether the candidate understands the main concept being tested. " +
+            "If the candidate correctly explains the core concept but misses secondary details, give credit for the correct understanding and apply only a moderate deduction. " +
+            "A partially correct answer should generally score at least 6.0 when its core concept is correct and there are no significant technical errors. " +
+            "Do not reduce a technically correct answer to a low score simply because it does not cover every expected answer point. " +
+
+            "TECHNICAL ERRORS: " +
+            "Penalize incorrect technical claims, contradictions, or fundamental misunderstandings appropriately. " +
+            "Distinguish between minor imprecision and a fundamental technical error. " +
+            "A fundamentally incorrect answer should receive a low score even if it mentions some relevant terminology. " +
+
+            "COMPLETENESS: " +
+            "Evaluate completeness based on the actual question and the candidate's experience level. " +
+            "Expected answer points are guidance, not a strict checklist. " +
+            "Not every expected point is mandatory if the candidate has correctly answered the main question. " +
+            "Missing advanced or secondary details should normally be treated as minor omissions unless those details are essential to the question. " +
+
+            "EXPERIENCE LEVEL: " +
+            "For Junior candidates, prioritize fundamental understanding and practical knowledge. " +
+            "Do not require advanced internals, optimization techniques, architecture patterns, or specialized knowledge unless the question explicitly asks for them. " +
+            "For Mid-level candidates, expect stronger practical implementation, debugging, and common design knowledge. " +
+            "For Senior and Lead candidates, expect deeper technical reasoning, architecture, performance, scalability, and trade-offs when relevant. " +
+
+            "COMMUNICATION: " +
+            "Focus primarily on technical meaning rather than grammar, spelling, or minor wording mistakes. " +
+            "Do not materially reduce the technical score because of typos or imperfect English when the technical meaning is understandable. " +
+
+            "FEEDBACK: " +
+            "Identify genuine strengths and weaknesses. " +
+            "Mention missing concepts only when they are relevant and useful for improving the answer. " +
+            "Provide practical and actionable improvement suggestions. " +
+            "The ideal answer should be accurate, clear, and appropriate for the candidate's experience level rather than unnecessarily advanced. " +
+
+            "Ensure the output strictly conforms to the requested JSON schema.";
 
         var userPrompt = $"Target Role: {request.TargetRole}\n" +
         $"Experience Level: {request.ExperienceLevel}\n" +
@@ -203,7 +266,8 @@ public class GeminiInterviewService : IAIInterviewService
         var response = await client.Models.GenerateContentAsync(
             model: _settings.Model,
             contents: userPrompt,
-            config: config
+            config: config,
+            cancellationToken: cancellationToken
         );
 
         var responseText = response.Text ?? response.Candidates?[0]?.Content?.Parts?[0]?.Text
@@ -301,7 +365,8 @@ public class GeminiInterviewService : IAIInterviewService
         var response = await client.Models.GenerateContentAsync(
             model: _settings.Model,
             contents: userPrompt,
-            config: config
+            config: config,
+            cancellationToken: cancellationToken
         );
 
         var responseText = response.Text ?? response.Candidates?[0]?.Content?.Parts?[0]?.Text

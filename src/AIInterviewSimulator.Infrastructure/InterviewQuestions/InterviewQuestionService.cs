@@ -76,6 +76,15 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
 
         var questionNumber = existingQuestions.Count + 1;
 
+        var configuredTopics = session.SessionTopics
+            .Select(st => st.Topic)
+            .Distinct()
+            .ToList();
+
+        var nextTopic = configuredTopics[
+            (questionNumber - 1) % configuredTopics.Count
+        ];
+
         var previousQuestions = existingQuestions
             .Select(q => new PreviousQuestionContext(
                 QuestionText: q.QuestionText,
@@ -90,9 +99,10 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
             TargetRole: session.Role,
             ExperienceLevel: session.ExperienceLevel,
             Difficulty: session.Difficulty,
-            Topics: session.SessionTopics
-                .Select(st => st.Topic.ToString())
-                .ToList(),
+            Topics: new List<string>
+            {
+                nextTopic.ToString()
+            },  
             QuestionNumber: questionNumber,
             TotalQuestions: session.TotalQuestions,
             PreviousQuestions: previousQuestions
@@ -122,10 +132,10 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
             .Select(st => st.Topic)
             .ToHashSet();
 
-        if (!allowedTopics.Contains(topic))
+        if (topic != nextTopic)
         {
             throw new InvalidOperationException(
-                "The AI returned a topic that is not part of this interview session.");
+                "The AI returned a topic different from the topic assigned to this question.");
         }
 
         var questionText = generatedQuestion.QuestionText.Trim();
