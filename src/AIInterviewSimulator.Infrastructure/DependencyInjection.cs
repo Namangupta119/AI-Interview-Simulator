@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using AIInterviewSimulator.Infrastructure.InterviewSessions;
 using AIInterviewSimulator.Infrastructure.InterviewQuestions;
 using AIInterviewSimulator.Infrastructure.AnswerEvaluations;
+using AIInterviewSimulator.Infrastructure.InterviewReports;
 
 namespace AIInterviewSimulator.Infrastructure;
 
@@ -47,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<IInterviewSessionService, InterviewSessionService>();
         services.AddScoped<IInterviewQuestionService, InterviewQuestionService>();
         services.AddScoped<IAnswerEvaluationService, AnswerEvaluationService>();
+        services.AddScoped<IInterviewReportService, InterviewReportService>();
 
         // Configure JWT settings
         services.Configure<JwtSettings>(

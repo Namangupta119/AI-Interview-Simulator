@@ -72,12 +72,19 @@ public record EvaluatedQuestionAnswerSummary(
 
 public record InterviewSummaryResult(
     double OverallScore,
-    string SummaryFeedback,
-    IReadOnlyList<string> KeyStrengths,
-    IReadOnlyList<string> AreasForImprovement
+    string StrengthSummary,
+    string WeaknessSummary,
+    IReadOnlyList<string> RecommendedTopics,
+    string ImprovementPlan,
+    string TopicScoresJson
 )
 {
     public bool IsValid =>
-        OverallScore >= 0 && OverallScore <= 10 &&
-        !string.IsNullOrWhiteSpace(SummaryFeedback);
+        OverallScore >= 0 &&
+        OverallScore <= 10 &&
+        !string.IsNullOrWhiteSpace(StrengthSummary) &&
+        !string.IsNullOrWhiteSpace(WeaknessSummary) &&
+        RecommendedTopics is not null &&
+        !string.IsNullOrWhiteSpace(ImprovementPlan) &&
+        !string.IsNullOrWhiteSpace(TopicScoresJson);
 }

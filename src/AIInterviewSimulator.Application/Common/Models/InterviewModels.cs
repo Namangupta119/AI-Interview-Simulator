@@ -43,3 +43,15 @@ public record SubmitAnswerResponse(
     string IdealAnswer,
     DateTime SubmittedAtUtc
 );
+
+public record InterviewReportResponse(
+    Guid ReportId,
+    Guid SessionId,
+    decimal OverallScore,
+    string StrengthSummary,
+    string WeaknessSummary,
+    string RecommendedTopics,
+    string ImprovementPlan,
+    string TopicScoresJson,
+    DateTime CreatedAtUtc
+);

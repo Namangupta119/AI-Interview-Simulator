@@ -228,8 +228,14 @@ public class GeminiInterviewService : IAIInterviewService
     {
         var client = CreateClient();
 
-        var systemPrompt = "You are a senior technical hiring manager summarizing an overall technical interview performance. " +
-            "Calculate an overall score between 0.0 and 10.0, synthesize comprehensive final feedback, list key strengths, and areas for improvement. " +
+        var systemPrompt =
+            "You are a senior technical hiring manager summarizing an overall technical interview performance. " +
+            "Analyze all questions, candidate answers, and individual evaluation scores. " +
+            "Calculate an overall score between 0.0 and 10.0. " +
+            "Provide a strength summary, weakness summary, recommended topics for further study, " +
+            "and a practical improvement plan. " +
+            "Also provide topic-wise scores based on the evaluated questions. " +
+            "The topic scores must be returned as a JSON object where each property name is the topic and each value is a score from 0.0 to 10.0. " +
             "Ensure the output strictly conforms to the requested JSON schema.";
 
         var userPrompt = $"Target Role: {request.TargetRole}\n" +
@@ -248,18 +254,36 @@ public class GeminiInterviewService : IAIInterviewService
         {
             "type": "object",
             "properties": {
-                "overallScore": { "type": "number" },
-                "summaryFeedback": { "type": "string" },
-                "keyStrengths": {
-                    "type": "array",
-                    "items": { "type": "string" }
+                "overallScore": {
+                    "type": "number"
                 },
-                "areasForImprovement": {
+                "strengthSummary": {
+                    "type": "string"
+                },
+                "weaknessSummary": {
+                    "type": "string"
+                },
+                "recommendedTopics": {
                     "type": "array",
-                    "items": { "type": "string" }
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "improvementPlan": {
+                    "type": "string"
+                },
+                "topicScoresJson": {
+                    "type": "string"
                 }
             },
-            "required": ["overallScore", "summaryFeedback", "keyStrengths", "areasForImprovement"]
+            "required": [
+                "overallScore",
+                "strengthSummary",
+                "weaknessSummary",
+                "recommendedTopics",
+                "improvementPlan",
+                "topicScoresJson"
+            ]
         }
         """;
 
@@ -271,7 +295,7 @@ public class GeminiInterviewService : IAIInterviewService
             },
             ResponseMimeType = "application/json",
             ResponseJsonSchema = JsonNode.Parse(schemaJson),
-            Temperature = 0.2
+            Temperature = _settings.Temperature
         };
 
         var response = await client.Models.GenerateContentAsync(
