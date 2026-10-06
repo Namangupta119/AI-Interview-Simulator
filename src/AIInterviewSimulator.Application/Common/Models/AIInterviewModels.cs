@@ -40,15 +40,21 @@ public record EvaluateAnswerRequest(
 
 public record EvaluatedAnswerResult(
     double Score,
-    string Feedback,
+    string TechnicalCorrectness,
+    string Completeness,
     IReadOnlyList<string> Strengths,
     IReadOnlyList<string> Weaknesses,
-    IReadOnlyList<string> Improvements
+    IReadOnlyList<string> MissingConcepts,
+    IReadOnlyList<string> Improvements,
+    string IdealAnswer
 )
 {
     public bool IsValid =>
-        Score >= 0 && Score <= 10 &&
-        !string.IsNullOrWhiteSpace(Feedback);
+        Score >= 0 &&
+        Score <= 10 &&
+        !string.IsNullOrWhiteSpace(TechnicalCorrectness) &&
+        !string.IsNullOrWhiteSpace(Completeness) &&
+        !string.IsNullOrWhiteSpace(IdealAnswer);
 }
 
 public record GenerateSummaryRequest(

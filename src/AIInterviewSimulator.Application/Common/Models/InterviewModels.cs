@@ -29,3 +29,17 @@ public record GenerateInterviewQuestionResponse(
     string ExpectedAnswerPoints,
     InterviewTopic Topic
 );
+
+public record SubmitAnswerResponse(
+    Guid AnswerId,
+    Guid QuestionId,
+    decimal Score,
+    string TechnicalCorrectness,
+    string Completeness,
+    string Strengths,
+    string Weaknesses,
+    string MissingConcepts,
+    string ImprovementSuggestions,
+    string IdealAnswer,
+    DateTime SubmittedAtUtc
+);
