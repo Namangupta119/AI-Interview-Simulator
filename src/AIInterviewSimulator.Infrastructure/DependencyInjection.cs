@@ -13,6 +13,7 @@ using AIInterviewSimulator.Infrastructure.InterviewSessions;
 using AIInterviewSimulator.Infrastructure.InterviewQuestions;
 using AIInterviewSimulator.Infrastructure.AnswerEvaluations;
 using AIInterviewSimulator.Infrastructure.InterviewReports;
+using AIInterviewSimulator.Infrastructure.Dashboard;
 
 namespace AIInterviewSimulator.Infrastructure;
 
@@ -50,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<IInterviewProgressService, InterviewProgressService>();
         services.AddScoped<IAnswerEvaluationService, AnswerEvaluationService>();
         services.AddScoped<IInterviewReportService, InterviewReportService>();
+        services.AddScoped<IDashboardService, DashboardService>();
 
         // Configure JWT settings
         services.Configure<JwtSettings>(
