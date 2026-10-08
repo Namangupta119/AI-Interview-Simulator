@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  abandonInterview,
   completeInterview,
   generateNextQuestion,
   getInterviewProgress,
@@ -65,6 +66,32 @@ export function ActiveInterviewPage() {
     loadQuestion();
   }, [sessionId]);
 
+  async function handleAbandonInterview() {
+    if (!sessionId || isSubmitting) {
+      return;
+    }
+
+    const shouldAbandon = window.confirm(
+      "Are you sure you want to leave this interview? Your progress will be saved, but you will not be able to continue this interview later.",
+    );
+
+    if (!shouldAbandon) {
+      return;
+    }
+
+    try {
+      setError("");
+
+      await abandonInterview(sessionId);
+
+      navigate("/history");
+    } catch {
+      setError(
+        "Unable to leave the interview. Please try again.",
+      );
+    }
+  }
+
   async function handleSubmitAnswer() {
     if (!question || !sessionId) {
       return;
@@ -112,20 +139,20 @@ export function ActiveInterviewPage() {
   }
 
   async function loadProgress(currentSessionId: string) {
-  const requestId = ++progressRequestId.current;
+    const requestId = ++progressRequestId.current;
 
-  try {
-    const response =
-      await getInterviewProgress(currentSessionId);
+    try {
+      const response =
+        await getInterviewProgress(currentSessionId);
 
-    if (requestId === progressRequestId.current) {
-      setProgress(response);
+      if (requestId === progressRequestId.current) {
+        setProgress(response);
+      }
+    } catch {
+      // Progress is helpful UI information,
+      // so don't block the interview if it fails.
     }
-  } catch {
-    // Progress is helpful UI information,
-    // so don't block the interview if it fails.
   }
-}
 
   if (isLoading) {
     return (
@@ -170,18 +197,24 @@ export function ActiveInterviewPage() {
 
   return (
     <div className="interview-page">
-      <div className="interview-page-header">
-        <p className="dashboard-eyebrow">
-          QUESTION {question.questionNumber} OF{" "}
-          {question.totalQuestions}
-        </p>
+  <div className="interview-active-header">
+    <div>
+      <h1>Technical Interview</h1>
 
-        <h1>Technical Interview</h1>
+      <p>
+        Take your time and explain your answer clearly.
+      </p>
+    </div>
 
-        <p>
-          Take your time and explain your answer clearly.
-        </p>
-      </div>
+    <button
+      type="button"
+      className="interview-leave-button"
+      onClick={handleAbandonInterview}
+      disabled={isSubmitting}
+    >
+      Leave Interview
+    </button>
+  </div>
 
       {progress && (
         <div className="interview-progress">

@@ -105,3 +105,11 @@ export interface InterviewProgressResponse {
   currentQuestionNumber: number;
   questions: InterviewQuestionProgress[];
 }
+
+export async function abandonInterview(
+  sessionId: string,
+): Promise<void> {
+  await httpClient.post(
+    `/api/interviews/sessions/${sessionId}/abandon`,
+  );
+}
