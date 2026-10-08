@@ -10,6 +10,7 @@ import {
 const statusLabels: Record<number, string> = {
   0: "In Progress",
   1: "Completed",
+  2: "Abandoned",
 };
 
 function formatDate(date: string): string {
@@ -42,6 +43,7 @@ function RecentInterviewCard({
   interview: DashboardRecentInterviewResponse;
 }) {
   const isCompleted = interview.status === 1;
+  const isAbandoned = interview.status === 2;
 
   return (
     <div className="dashboard-recent-item">
@@ -55,11 +57,12 @@ function RecentInterviewCard({
 
       <div className="dashboard-recent-meta">
         <span
-          className={`dashboard-recent-status ${
-            isCompleted
-              ? "dashboard-recent-status-completed"
+          className={`dashboard-recent-status ${isCompleted
+            ? "dashboard-recent-status-completed"
+            : isAbandoned
+              ? "dashboard-recent-status-abandoned"
               : "dashboard-recent-status-progress"
-          }`}
+            }`}
         >
           {statusLabels[interview.status] ?? "Unknown"}
         </span>
@@ -82,6 +85,10 @@ function RecentInterviewCard({
         ) : isCompleted ? (
           <span className="dashboard-recent-muted">
             Report unavailable
+          </span>
+        ) : isAbandoned ? (
+          <span className="dashboard-recent-muted">
+            Interview abandoned
           </span>
         ) : (
           <Link

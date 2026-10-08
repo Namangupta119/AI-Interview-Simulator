@@ -8,6 +8,7 @@ import { InterviewSetupPage } from "../pages/interview/InterviewSetupPage";
 import { ActiveInterviewPage } from "../pages/interview/ActiveInterviewPage";
 import { ReportPage } from "../pages/report/ReportPage";
 import { HistoryPage } from "../pages/history/HistoryPage";
+import { NotFoundPage } from "../pages/NotFoundPage";
 
 function HomePage() {
   return <h1>AI Interview Simulator</h1>;
@@ -29,6 +30,8 @@ export function AppRoutes() {
           <Route path="/history" element={<HistoryPage />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
