@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
     getInterviewReport,
     type InterviewReportResponse,
@@ -45,18 +45,24 @@ export function ReportPage() {
 
     if (isLoading) {
         return (
-            <div className="report-page">
-                <div className="report-page-header">
-                    <p className="dashboard-eyebrow">
-                        INTERVIEW REPORT
-                    </p>
+            <div className="report-page-header">
+                <Link
+                    to="/history"
+                    className="report-back-link"
+                >
+                    ← Back to History
+                </Link>
 
-                    <h1>Preparing your report...</h1>
+                <p className="dashboard-eyebrow">
+                    INTERVIEW REPORT
+                </p>
 
-                    <p>
-                        Loading your interview performance summary.
-                    </p>
-                </div>
+                <h1>Your Interview Report</h1>
+
+                <p>
+                    Here is a summary of your interview performance
+                    and the areas you can improve.
+                </p>
             </div>
         );
     }
@@ -65,6 +71,13 @@ export function ReportPage() {
         return (
             <div className="report-page">
                 <div className="report-page-header">
+                    <Link
+                        to="/history"
+                        className="report-back-link"
+                    >
+                        ← Back to History
+                    </Link>
+
                     <p className="dashboard-eyebrow">
                         INTERVIEW REPORT
                     </p>
@@ -96,17 +109,28 @@ export function ReportPage() {
     return (
         <div className="report-page">
             <div className="report-page-header">
-                <p className="dashboard-eyebrow">
-                    INTERVIEW REPORT
-                </p>
+    <div className="report-page-header-top">
+        <div>
+            <p className="dashboard-eyebrow">
+                INTERVIEW REPORT
+            </p>
 
-                <h1>Your Interview Report</h1>
+            <h1>Your Interview Report</h1>
 
-                <p>
-                    Here is a summary of your interview performance
-                    and the areas you can improve.
-                </p>
-            </div>
+            <p>
+                Here is a summary of your interview performance
+                and the areas you can improve.
+            </p>
+        </div>
+
+        <Link
+            to="/history"
+            className="report-back-link"
+        >
+            ← Back to History
+        </Link>
+    </div>
+</div>
 
             <div className="report-score-card">
                 <p>Overall Score</p>

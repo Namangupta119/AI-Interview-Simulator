@@ -1464,3 +1464,43 @@ a:hover {
     gap: 10px;
   }
 }
+
+.report-page-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.report-back-link {
+  flex-shrink: 0;
+  margin-top: 8px;
+  padding: 9px 14px;
+  border: 1px solid #343b4d;
+  border-radius: 8px;
+  color: #c4c9d4;
+  background: #171b26;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.report-back-link:hover {
+  color: #fff;
+  background: #202636;
+  border-color: #4b556d;
+}
+
+@media (max-width: 768px) {
+  .report-page-header-top {
+    flex-direction: column;
+  }
+
+  .report-back-link {
+    margin-top: 0;
+  }
+}
