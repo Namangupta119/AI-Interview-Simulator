@@ -7,4 +7,7 @@ public interface IInterviewSessionService
     Task<CreateInterviewSessionResponse> CreateAsync(
         CreateInterviewSessionRequest request,
         CancellationToken cancellationToken = default);
+
+    Task<InterviewHistoryResponse> GetHistoryAsync(
+        CancellationToken cancellationToken = default);
 }

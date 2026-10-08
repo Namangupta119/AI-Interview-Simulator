@@ -58,3 +58,22 @@ public record InterviewReportResponse(
     string TopicScoresJson,
     DateTime CreatedAtUtc
 );
+
+public record InterviewHistoryItemResponse(
+    Guid SessionId,
+    string Role,
+    ExperienceLevel ExperienceLevel,
+    InterviewDifficulty Difficulty,
+    int TotalQuestions,
+    SessionStatus Status,
+    decimal? OverallScore,
+    DateTime StartedAtUtc,
+    DateTime? CompletedAtUtc,
+    IReadOnlyCollection<InterviewTopic> Topics,
+    IReadOnlyCollection<string> CustomTopics,
+    bool HasReport
+);
+
+public record InterviewHistoryResponse(
+    IReadOnlyCollection<InterviewHistoryItemResponse> Items
+);

@@ -152,4 +152,25 @@ public sealed class InterviewSessionsController : ControllerBase
             });
         }
     }
+
+    [HttpGet("history")]
+    [ProducesResponseType(
+        typeof(InterviewHistoryResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetHistory(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _sessionService.GetHistoryAsync(
+                cancellationToken);
+
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
 }

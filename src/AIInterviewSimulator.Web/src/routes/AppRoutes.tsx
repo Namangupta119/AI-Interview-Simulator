@@ -7,14 +7,10 @@ import { AppLayout } from "../layouts/AppLayout";
 import { InterviewSetupPage } from "../pages/interview/InterviewSetupPage";
 import { ActiveInterviewPage } from "../pages/interview/ActiveInterviewPage";
 import { ReportPage } from "../pages/report/ReportPage";
+import { HistoryPage } from "../pages/history/HistoryPage";
 
 function HomePage() {
   return <h1>AI Interview Simulator</h1>;
-}
-
-
-function HistoryPage() {
-  return <h1>Interview History</h1>;
 }
 
 export function AppRoutes() {
