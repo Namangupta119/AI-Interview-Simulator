@@ -62,6 +62,24 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
             .OrderBy(q => q.QuestionNumber)
             .ToList();
 
+        var unansweredQuestion = existingQuestions
+            .FirstOrDefault(q =>
+                q.Answer is null ||
+                string.IsNullOrWhiteSpace(q.Answer.AnswerText));
+
+        if (unansweredQuestion is not null)
+        {
+            return new GenerateInterviewQuestionResponse(
+                QuestionId: unansweredQuestion.Id,
+                QuestionNumber: unansweredQuestion.QuestionNumber,
+                TotalQuestions: session.TotalQuestions,
+                QuestionText: unansweredQuestion.QuestionText,
+                ExpectedAnswerPoints: unansweredQuestion.ExpectedAnswerPoints,
+                Topic: unansweredQuestion.Topic,
+                CustomTopic: unansweredQuestion.CustomTopic
+            );
+        }
+
         if (existingQuestions.Count >= session.TotalQuestions)
         {
             throw new InvalidOperationException(
