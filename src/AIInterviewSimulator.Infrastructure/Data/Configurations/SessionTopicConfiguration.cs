@@ -2,7 +2,7 @@ using AIInterviewSimulator.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AIInterviewSimulator.Infrastructure.Data.Configurations;
+namespace AIInterviewSimulator.Infrastructure.Persistence.Configurations;
 
 public class SessionTopicConfiguration : IEntityTypeConfiguration<SessionTopic>
 {
@@ -13,7 +13,11 @@ public class SessionTopicConfiguration : IEntityTypeConfiguration<SessionTopic>
         builder.HasKey(st => st.Id);
 
         builder.Property(st => st.Topic)
-            .IsRequired();
+            .IsRequired(false);
+
+        builder.Property(st => st.CustomTopic)
+            .HasMaxLength(100)
+            .IsRequired(false);
 
         builder.HasOne(st => st.Session)
             .WithMany(s => s.SessionTopics)
@@ -21,6 +25,11 @@ public class SessionTopicConfiguration : IEntityTypeConfiguration<SessionTopic>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(st => new { st.SessionId, st.Topic })
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("[Topic] IS NOT NULL");
+
+        builder.HasIndex(st => new { st.SessionId, st.CustomTopic })
+            .IsUnique()
+            .HasFilter("[CustomTopic] IS NOT NULL");
     }
 }

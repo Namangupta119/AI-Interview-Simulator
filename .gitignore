@@ -15,7 +15,7 @@
 ## Secrets & local environment
 appsettings.Local.json
 appsettings.secrets.json
-.env
+.env.development
 *.key
 *.pem
 

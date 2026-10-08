@@ -2,9 +2,10 @@ using AIInterviewSimulator.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AIInterviewSimulator.Infrastructure.Data.Configurations;
+namespace AIInterviewSimulator.Infrastructure.Persistence.Configurations;
 
-public class InterviewQuestionConfiguration : IEntityTypeConfiguration<InterviewQuestion>
+public class InterviewQuestionConfiguration
+    : IEntityTypeConfiguration<InterviewQuestion>
 {
     public void Configure(EntityTypeBuilder<InterviewQuestion> builder)
     {
@@ -16,7 +17,11 @@ public class InterviewQuestionConfiguration : IEntityTypeConfiguration<Interview
             .IsRequired();
 
         builder.Property(q => q.Topic)
-            .IsRequired();
+            .IsRequired(false);
+
+        builder.Property(q => q.CustomTopic)
+            .HasMaxLength(100)
+            .IsRequired(false);
 
         builder.Property(q => q.QuestionText)
             .IsRequired()

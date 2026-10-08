@@ -52,4 +52,33 @@ public class InterviewReportsController : ControllerBase
             });
         }
     }
+
+    [HttpGet("{sessionId:guid}/report")]
+    public async Task<IActionResult> GetReport(
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _interviewReportService.GetAsync(
+                sessionId,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new
+            {
+                message = ex.Message
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new
+            {
+                message = ex.Message
+            });
+        }
+    }
 }

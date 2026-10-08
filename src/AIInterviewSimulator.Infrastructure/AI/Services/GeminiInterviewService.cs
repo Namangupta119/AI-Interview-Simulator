@@ -300,6 +300,8 @@ public class GeminiInterviewService : IAIInterviewService
             "and a practical improvement plan. " +
             "Also provide topic-wise scores based on the evaluated questions. " +
             "The topic scores must be returned as a JSON object where each property name is the topic and each value is a score from 0.0 to 10.0. " +
+            "Use the exact topic names provided with each question when generating topic-wise scores. " +
+            "Do not rename, merge, invent, or reinterpret topics. " +
             "Ensure the output strictly conforms to the requested JSON schema.";
 
         var userPrompt = $"Target Role: {request.TargetRole}\n" +
@@ -309,7 +311,9 @@ public class GeminiInterviewService : IAIInterviewService
         for (var i = 0; i < request.Answers.Count; i++)
         {
             var item = request.Answers[i];
-            userPrompt += $"Q{i + 1}: {item.QuestionText}\n" +
+
+            userPrompt += $"Q{i + 1} Topic: {item.Topic}\n" +
+                $"Question: {item.QuestionText}\n" +
                 $"Candidate Answer: {item.CandidateAnswerText}\n" +
                 $"Score: {item.Score}/10 | Feedback: {item.Feedback}\n\n";
         }

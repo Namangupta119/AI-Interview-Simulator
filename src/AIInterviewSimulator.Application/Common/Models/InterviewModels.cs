@@ -7,7 +7,8 @@ public record CreateInterviewSessionRequest(
     ExperienceLevel ExperienceLevel,
     InterviewDifficulty Difficulty,
     int TotalQuestions,
-    IReadOnlyCollection<InterviewTopic> Topics
+    IReadOnlyCollection<InterviewTopic> Topics,
+    IReadOnlyCollection<string>? CustomTopics
 );
 
 public record CreateInterviewSessionResponse(
@@ -17,6 +18,7 @@ public record CreateInterviewSessionResponse(
     InterviewDifficulty Difficulty,
     int TotalQuestions,
     IReadOnlyCollection<InterviewTopic> Topics,
+    IReadOnlyCollection<string> CustomTopics,
     SessionStatus Status,
     DateTime StartedAtUtc
 );
@@ -27,7 +29,8 @@ public record GenerateInterviewQuestionResponse(
     int TotalQuestions,
     string QuestionText,
     string ExpectedAnswerPoints,
-    InterviewTopic Topic
+    InterviewTopic? Topic,
+    string? CustomTopic
 );
 
 public record SubmitAnswerResponse(

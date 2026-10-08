@@ -77,13 +77,26 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
         var questionNumber = existingQuestions.Count + 1;
 
         var configuredTopics = session.SessionTopics
-            .Select(st => st.Topic)
-            .Distinct()
+            .Select(st => new
+            {
+                Topic = st.Topic,
+                CustomTopic = st.CustomTopic
+            })
             .ToList();
 
-        var nextTopic = configuredTopics[
-            (questionNumber - 1) % configuredTopics.Count
-        ];
+            var nextConfiguredTopic = configuredTopics[
+                (questionNumber - 1) % configuredTopics.Count
+            ];
+
+            var nextTopicName = nextConfiguredTopic.Topic.HasValue
+                ? nextConfiguredTopic.Topic.Value.ToString()
+                : nextConfiguredTopic.CustomTopic;
+
+            if   (string.IsNullOrWhiteSpace(nextTopicName))
+            {
+                throw new InvalidOperationException(
+                    "The configured interview topic is invalid.");
+            }
 
         var previousQuestions = existingQuestions
             .Select(q => new PreviousQuestionContext(
@@ -101,7 +114,7 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
             Difficulty: session.Difficulty,
             Topics: new List<string>
             {
-                nextTopic.ToString()
+                nextTopicName
             },  
             QuestionNumber: questionNumber,
             TotalQuestions: session.TotalQuestions,
@@ -119,20 +132,10 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
                 "The AI generated an invalid interview question.");
         }
 
-        if (!Enum.TryParse<InterviewTopic>(
-                generatedQuestion.Topic,
-                ignoreCase: true,
-                out var topic))
-        {
-            throw new InvalidOperationException(
-                "The AI returned an invalid interview topic.");
-        }
-
-        var allowedTopics = session.SessionTopics
-            .Select(st => st.Topic)
-            .ToHashSet();
-
-        if (topic != nextTopic)
+        if (!string.Equals(
+            generatedQuestion.Topic.Trim(),
+            nextTopicName,
+            StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
                 "The AI returned a topic different from the topic assigned to this question.");
@@ -159,7 +162,8 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
             Id = Guid.NewGuid(),
             SessionId = session.Id,
             QuestionNumber = questionNumber,
-            Topic = topic,
+            Topic = nextConfiguredTopic.Topic,
+            CustomTopic = nextConfiguredTopic.CustomTopic,
             QuestionText = questionText,
             ExpectedAnswerPoints = expectedAnswerPoints,
             CreatedAtUtc = DateTime.UtcNow
@@ -175,7 +179,8 @@ public sealed class InterviewQuestionService : IInterviewQuestionService
             TotalQuestions: session.TotalQuestions,
             QuestionText: question.QuestionText,
             ExpectedAnswerPoints: question.ExpectedAnswerPoints,
-            Topic: question.Topic
+            Topic: question.Topic,
+            CustomTopic: question.CustomTopic
         );
     }
 }

@@ -158,6 +158,7 @@ public class AuthController : ControllerBase
             userId = _currentUserService.UserId,
             email = _currentUserService.Email,
             username = _currentUserService.Username,
+            fullName = _currentUserService.FullName,
             roles = _currentUserService.Roles
         });
     }

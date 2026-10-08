@@ -50,7 +50,20 @@ public sealed class InterviewSessionService : IInterviewSessionService
             session.SessionTopics.Add(new SessionTopic
             {
                 SessionId = session.Id,
-                Topic = topic
+                Topic = topic,
+                CustomTopic = null
+            });
+        }
+
+        foreach (var customTopic in (request.CustomTopics ?? Array.Empty<string>())
+             .Select(topic => topic.Trim())
+             .Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            session.SessionTopics.Add(new SessionTopic
+            {
+                SessionId = session.Id,
+                Topic = null,
+                CustomTopic = customTopic
             });
         }
 
@@ -65,7 +78,13 @@ public sealed class InterviewSessionService : IInterviewSessionService
             Difficulty: session.Difficulty,
             TotalQuestions: session.TotalQuestions,
             Topics: session.SessionTopics
-                .Select(st => st.Topic)
+                .Where(st => st.Topic.HasValue)
+                .Select(st => st.Topic!.Value)
+                .ToArray(),
+
+            CustomTopics: session.SessionTopics
+                .Where(st => !string.IsNullOrWhiteSpace(st.CustomTopic))
+                .Select(st => st.CustomTopic!)
                 .ToArray(),
             Status: session.Status,
             StartedAtUtc: session.StartedAtUtc

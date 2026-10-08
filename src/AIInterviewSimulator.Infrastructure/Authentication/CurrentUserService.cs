@@ -34,6 +34,9 @@ public sealed class CurrentUserService : ICurrentUserService
     public string? Username =>
         User?.FindFirstValue(ClaimTypes.Name);
 
+    public string? FullName =>
+    User?.FindFirstValue("full_name");
+
     public IReadOnlyCollection<string> Roles =>
         User?
             .FindAll(ClaimTypes.Role)

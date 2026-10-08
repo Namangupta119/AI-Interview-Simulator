@@ -87,7 +87,10 @@ public sealed class InterviewReportService : IInterviewReportService
                 QuestionText: q.QuestionText,
                 CandidateAnswerText: q.Answer!.AnswerText,
                 Score: (double)q.Answer.Evaluation!.Score,
-                Feedback: q.Answer.Evaluation.TechnicalCorrectness
+                Feedback: q.Answer.Evaluation.TechnicalCorrectness,
+                Topic: q.Topic.HasValue
+                    ? q.Topic.Value.ToString()
+                    : q.CustomTopic!
             ))
             .ToList();
 
@@ -184,6 +187,46 @@ public sealed class InterviewReportService : IInterviewReportService
         _dbContext.InterviewReports.Add(report);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new InterviewReportResponse(
+            ReportId: report.Id,
+            SessionId: report.SessionId,
+            OverallScore: report.OverallScore,
+            StrengthSummary: report.StrengthSummary,
+            WeaknessSummary: report.WeaknessSummary,
+            RecommendedTopics: report.RecommendedTopics,
+            ImprovementPlan: report.ImprovementPlan,
+            TopicScoresJson: report.TopicScoresJson,
+            CreatedAtUtc: report.CreatedAtUtc
+        );
+    }
+
+    public async Task<InterviewReportResponse> GetAsync(
+    Guid sessionId,
+    CancellationToken cancellationToken = default)
+    {
+        if (!_currentUserService.IsAuthenticated ||
+            !_currentUserService.UserId.HasValue)
+        {
+            throw new UnauthorizedAccessException(
+                "User must be authenticated to view the interview report.");
+        }
+
+        var userId = _currentUserService.UserId.Value;
+
+        var report = await _dbContext.InterviewReports
+            .Include(r => r.Session)
+            .FirstOrDefaultAsync(
+                r => r.SessionId == sessionId &&
+                    r.Session!.UserId == userId &&
+                    !r.Session.IsDeleted,
+                cancellationToken);
+
+        if (report is null)
+        {
+            throw new KeyNotFoundException(
+                "Interview report was not found.");
+        }
 
         return new InterviewReportResponse(
             ReportId: report.Id,

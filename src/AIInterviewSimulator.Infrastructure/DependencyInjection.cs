@@ -47,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IInterviewSessionService, InterviewSessionService>();
         services.AddScoped<IInterviewQuestionService, InterviewQuestionService>();
+        services.AddScoped<IInterviewProgressService, InterviewProgressService>();
         services.AddScoped<IAnswerEvaluationService, AnswerEvaluationService>();
         services.AddScoped<IInterviewReportService, InterviewReportService>();
 

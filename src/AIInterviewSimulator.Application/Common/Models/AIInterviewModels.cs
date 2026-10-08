@@ -67,7 +67,8 @@ public record EvaluatedQuestionAnswerSummary(
     string QuestionText,
     string CandidateAnswerText,
     double Score,
-    string Feedback
+    string Feedback,
+    string Topic
 );
 
 public record InterviewSummaryResult(

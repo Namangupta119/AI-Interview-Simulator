@@ -15,17 +15,20 @@ public sealed class InterviewSessionsController : ControllerBase
     private readonly IValidator<CreateInterviewSessionRequest> _validator;
     private readonly ILogger<InterviewSessionsController> _logger;
     private readonly IInterviewQuestionService _questionService;
+    private readonly IInterviewProgressService _interviewProgressService;
 
     public InterviewSessionsController(
         IInterviewSessionService sessionService,
         IValidator<CreateInterviewSessionRequest> validator,
         ILogger<InterviewSessionsController> logger,
-        IInterviewQuestionService questionService)
+        IInterviewQuestionService questionService,
+        IInterviewProgressService interviewProgressService)
     {
         _sessionService = sessionService;
         _validator = validator;
         _logger = logger;
         _questionService = questionService;
+        _interviewProgressService = interviewProgressService;
     }
 
     /// <summary>
@@ -115,6 +118,35 @@ public sealed class InterviewSessionsController : ControllerBase
                 sessionId);
 
             return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
+    }
+
+    [HttpGet("{sessionId:guid}/progress")]
+    public async Task<IActionResult> GetProgress(
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _interviewProgressService.GetProgressAsync(
+                sessionId,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new
+            {
+                message = ex.Message
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new
             {
                 message = ex.Message
             });
