@@ -10,4 +10,8 @@ public interface IInterviewSessionService
 
     Task<InterviewHistoryResponse> GetHistoryAsync(
         CancellationToken cancellationToken = default);
+
+    Task AbandonAsync(
+        Guid sessionId,
+        CancellationToken cancellationToken = default);
 }

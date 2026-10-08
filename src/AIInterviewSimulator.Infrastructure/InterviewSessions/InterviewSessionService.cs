@@ -138,4 +138,41 @@ public sealed class InterviewSessionService : IInterviewSessionService
 
         return new InterviewHistoryResponse(items);
     }
+
+    public async Task AbandonAsync(
+    Guid sessionId,
+    CancellationToken cancellationToken = default)
+    {
+        if (!_currentUserService.IsAuthenticated ||
+            !_currentUserService.UserId.HasValue)
+        {
+            throw new UnauthorizedAccessException(
+                "User must be authenticated to abandon an interview session.");
+        }
+
+        var userId = _currentUserService.UserId.Value;
+
+        var session = await _dbContext.InterviewSessions
+            .FirstOrDefaultAsync(
+                s => s.Id == sessionId &&
+                    s.UserId == userId &&
+                    !s.IsDeleted,
+                cancellationToken);
+
+        if (session is null)
+        {
+            throw new KeyNotFoundException(
+                "Interview session was not found.");
+        }
+
+        if (session.Status != SessionStatus.InProgress)
+        {
+            throw new InvalidOperationException(
+                "Only an in-progress interview session can be abandoned.");
+        }
+
+        session.Status = SessionStatus.Abandoned;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

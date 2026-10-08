@@ -173,4 +173,35 @@ public sealed class InterviewSessionsController : ControllerBase
             return Unauthorized();
         }
     }
+
+    [HttpPost("{sessionId:guid}/abandon")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Abandon(
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _sessionService.AbandonAsync(
+                sessionId,
+                cancellationToken);
+
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 }
